@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+env/
+.venv/
+
+# Environment variables (secrets)
+.env
+
+# IDE
+.vscode/settings.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Database
+*.db
+*.sqlite3
+
+# Logs
+*.log
