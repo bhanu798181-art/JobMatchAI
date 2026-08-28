@@ -15,9 +15,26 @@ def create_job_application(
     data: JobApplicationCreate
 ) -> JobApplication:
 
-    # 1. Create the job application
+    # Check whether this student already applied
+    # to this exact job.
+    existing_application = db.scalar(
+        select(JobApplication).where(
+            JobApplication.user_id == user.id,
+            JobApplication.job_id == data.job_id,
+            JobApplication.job_type == data.job_type
+        )
+    )
+
+    if existing_application:
+        raise ValueError(
+            "You have already applied for this job"
+        )
+
+    # Create the application
     application = JobApplication(
         user_id=user.id,
+        job_id=data.job_id,
+        job_type=data.job_type,
         job_title=data.job_title,
         company_name=data.company_name,
         job_location=data.job_location,
@@ -26,13 +43,13 @@ def create_job_application(
         notes=data.notes
     )
 
-    # 2. Add it to the database
+    # Add it to the database
     db.add(application)
 
-    # 3. Save the change
+    # Save
     db.commit()
 
-    # 4. Refresh generated values
+    # Refresh generated values
     db.refresh(application)
 
     return application
@@ -43,7 +60,6 @@ def get_job_applications(
     user: User
 ) -> list[JobApplication]:
 
-    # Find all applications belonging to the logged-in user
     applications = db.scalars(
         select(JobApplication)
         .where(
@@ -63,7 +79,6 @@ def get_job_application(
     application_id: int
 ) -> JobApplication:
 
-    # Find one application belonging to the logged-in user
     application = db.scalar(
         select(JobApplication).where(
             JobApplication.id == application_id,
@@ -72,7 +87,9 @@ def get_job_application(
     )
 
     if not application:
-        raise ValueError("Job application not found")
+        raise ValueError(
+            "Job application not found"
+        )
 
     return application
 
@@ -84,7 +101,6 @@ def update_job_application(
     data: JobApplicationUpdate
 ) -> JobApplication:
 
-    # 1. Find the application
     application = db.scalar(
         select(JobApplication).where(
             JobApplication.id == application_id,
@@ -92,23 +108,23 @@ def update_job_application(
         )
     )
 
-    # 2. Application doesn't exist
     if not application:
-        raise ValueError("Job application not found")
+        raise ValueError(
+            "Job application not found"
+        )
 
-    # 3. Get only fields that were actually provided
     update_data = data.model_dump(
         exclude_unset=True
     )
 
-    # 4. Update each provided field
     for field, value in update_data.items():
-        setattr(application, field, value)
+        setattr(
+            application,
+            field,
+            value
+        )
 
-    # 5. Save the changes
     db.commit()
-
-    # 6. Refresh the application
     db.refresh(application)
 
     return application
@@ -120,7 +136,6 @@ def delete_job_application(
     application_id: int
 ) -> None:
 
-    # 1. Find the application
     application = db.scalar(
         select(JobApplication).where(
             JobApplication.id == application_id,
@@ -128,12 +143,11 @@ def delete_job_application(
         )
     )
 
-    # 2. Application doesn't exist
     if not application:
-        raise ValueError("Job application not found")
+        raise ValueError(
+            "Job application not found"
+        )
 
-    # 3. Delete the application
     db.delete(application)
 
-    # 4. Save the change
     db.commit()

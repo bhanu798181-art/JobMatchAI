@@ -4,6 +4,15 @@ from pydantic import BaseModel, Field
 
 
 class JobApplicationCreate(BaseModel):
+    job_id: int = Field(
+        gt=0
+    )
+
+    job_type: str = Field(
+        min_length=1,
+        max_length=20
+    )
+
     job_title: str = Field(
         max_length=150
     )
@@ -62,6 +71,10 @@ class JobApplicationUpdate(BaseModel):
 class JobApplicationResponse(BaseModel):
     id: int
     user_id: int
+
+    job_id: int | None
+    job_type: str | None
+
     job_title: str
     company_name: str
     job_location: str | None

@@ -1,13 +1,22 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session as DBSession
+from models.education import Education
 
 from models.student_profile import StudentProfile
 from models.user import User
+from models.student_skill import StudentSkill
+from models.skill_master import SkillMaster
+
 from profile.schemas import (
     StudentProfileCreate,
-    StudentProfileUpdate
+    StudentProfileUpdate,
+    EducationUpdate
 )
 
+
+# ==================================================
+# STUDENT PROFILE
+# ==================================================
 
 def create_student_profile(
     db: DBSession,
@@ -15,17 +24,18 @@ def create_student_profile(
     data: StudentProfileCreate
 ) -> StudentProfile:
 
-    # 1. Check whether this user already has a profile
     existing_profile = db.scalar(
         select(StudentProfile).where(
+            
             StudentProfile.user_id == user.id
         )
     )
 
     if existing_profile:
-        raise ValueError("Student profile already exists")
+        raise ValueError(
+            "Student profile already exists"
+        )
 
-    # 2. Create the profile
     profile = StudentProfile(
         user_id=user.id,
         full_name=data.full_name,
@@ -35,13 +45,10 @@ def create_student_profile(
         country=data.country
     )
 
-    # 3. Add it to the database
     db.add(profile)
 
-    # 4. Save the change
     db.commit()
 
-    # 5. Refresh generated values
     db.refresh(profile)
 
     return profile
@@ -52,7 +59,6 @@ def get_student_profile(
     user: User
 ) -> StudentProfile:
 
-    # Find the profile belonging to the logged-in user
     profile = db.scalar(
         select(StudentProfile).where(
             StudentProfile.user_id == user.id
@@ -60,7 +66,9 @@ def get_student_profile(
     )
 
     if not profile:
-        raise ValueError("Student profile not found")
+        raise ValueError(
+            "Student profile not found"
+        )
 
     return profile
 
@@ -71,30 +79,30 @@ def update_student_profile(
     data: StudentProfileUpdate
 ) -> StudentProfile:
 
-    # 1. Find the profile belonging to the logged-in user
     profile = db.scalar(
         select(StudentProfile).where(
             StudentProfile.user_id == user.id
         )
     )
 
-    # 2. Profile doesn't exist
     if not profile:
-        raise ValueError("Student profile not found")
+        raise ValueError(
+            "Student profile not found"
+        )
 
-    # 3. Get only the fields that were actually provided
     update_data = data.model_dump(
         exclude_unset=True
     )
 
-    # 4. Update each provided field
     for field, value in update_data.items():
-        setattr(profile, field, value)
+        setattr(
+            profile,
+            field,
+            value
+        )
 
-    # 5. Save the changes
     db.commit()
 
-    # 6. Refresh the profile
     db.refresh(profile)
 
     return profile
@@ -105,19 +113,261 @@ def delete_student_profile(
     user: User
 ) -> None:
 
-    # 1. Find the profile belonging to the logged-in user
     profile = db.scalar(
         select(StudentProfile).where(
             StudentProfile.user_id == user.id
         )
     )
 
-    # 2. Profile doesn't exist
     if not profile:
-        raise ValueError("Student profile not found")
+        raise ValueError(
+            "Student profile not found"
+        )
 
-    # 3. Delete the profile
     db.delete(profile)
 
-    # 4. Save the change
     db.commit()
+
+
+# ==================================================
+# SKILLS
+# ==================================================
+
+def get_all_skills(
+    db: DBSession
+) -> list[SkillMaster]:
+
+    skills = db.scalars(
+        select(SkillMaster).order_by(
+            SkillMaster.canonical_name
+        )
+    ).all()
+
+    return list(skills)
+
+
+def get_student_skills(
+    db: DBSession,
+    user: User
+) -> list[dict]:
+
+    profile = db.scalar(
+        select(StudentProfile).where(
+            StudentProfile.user_id == user.id
+        )
+    )
+
+    if not profile:
+        raise ValueError(
+            "Student profile not found"
+        )
+
+    rows = db.execute(
+        select(
+            StudentSkill,
+            SkillMaster
+        )
+        .join(
+            SkillMaster,
+            StudentSkill.skill_id == SkillMaster.id
+        )
+        .where(
+            StudentSkill.student_id == profile.id
+        )
+        .order_by(
+            SkillMaster.canonical_name
+        )
+    ).all()
+
+    result = []
+
+    for student_skill, skill in rows:
+
+        result.append(
+            {
+                "id": student_skill.id,
+                "skill_id": skill.id,
+                "canonical_name": skill.canonical_name,
+                "category": skill.category,
+                "proficiency": student_skill.proficiency
+            }
+        )
+
+    return result
+
+
+def add_student_skill(
+    db: DBSession,
+    user: User,
+    skill_id: int,
+    proficiency: str | None
+) -> dict:
+
+    profile = db.scalar(
+        select(StudentProfile).where(
+            StudentProfile.user_id == user.id
+        )
+    )
+
+    if not profile:
+        raise ValueError(
+            "Student profile not found"
+        )
+
+    skill = db.scalar(
+        select(SkillMaster).where(
+            SkillMaster.id == skill_id
+        )
+    )
+
+    if not skill:
+        raise ValueError(
+            "Skill not found"
+        )
+
+    existing = db.scalar(
+        select(StudentSkill).where(
+            StudentSkill.student_id == profile.id,
+            StudentSkill.skill_id == skill_id
+        )
+    )
+
+    if existing:
+        raise ValueError(
+            "Skill already added to your profile"
+        )
+
+    student_skill = StudentSkill(
+        student_id=profile.id,
+        skill_id=skill_id,
+        proficiency=proficiency
+    )
+
+    db.add(student_skill)
+
+    db.commit()
+
+    db.refresh(student_skill)
+
+    return {
+        "id": student_skill.id,
+        "skill_id": skill.id,
+        "canonical_name": skill.canonical_name,
+        "category": skill.category,
+        "proficiency": student_skill.proficiency
+    }
+
+
+def remove_student_skill(
+    db: DBSession,
+    user: User,
+    skill_id: int
+) -> None:
+
+    profile = db.scalar(
+        select(StudentProfile).where(
+            StudentProfile.user_id == user.id
+        )
+    )
+
+    if not profile:
+        raise ValueError(
+            "Student profile not found"
+        )
+
+    student_skill = db.scalar(
+        select(StudentSkill).where(
+            StudentSkill.student_id == profile.id,
+            StudentSkill.skill_id == skill_id
+        )
+    )
+
+    if not student_skill:
+        raise ValueError(
+            "Student skill not found"
+        )
+
+    db.delete(student_skill)
+
+    db.commit()
+    # ==================================================
+# GET STUDENT EDUCATION
+# ==================================================
+
+def get_student_education(
+    db: DBSession,
+    user: User
+) -> list[Education]:
+
+    student = db.scalar(
+        select(StudentProfile).where(
+            StudentProfile.user_id == user.id
+        )
+    )
+
+    if not student:
+        raise ValueError(
+            "Student profile not found"
+        )
+
+    education = db.scalars(
+        select(Education)
+        .where(
+            Education.student_id == student.id
+        )
+        .order_by(
+            Education.created_at.desc()
+        )
+    ).all()
+
+    return list(education)
+# ==================================================
+# UPDATE STUDENT EDUCATION
+# ==================================================
+
+def update_student_education(
+    db: DBSession,
+    user: User,
+    education_id: int,
+    data: EducationUpdate
+) -> Education:
+
+    student = db.scalar(
+        select(StudentProfile).where(
+            StudentProfile.user_id == user.id
+        )
+    )
+
+    if not student:
+        raise ValueError(
+            "Student profile not found"
+        )
+
+    education = db.scalar(
+        select(Education).where(
+            Education.id == education_id,
+            Education.student_id == student.id
+        )
+    )
+
+    if not education:
+        raise ValueError(
+            "Education record not found"
+        )
+
+    update_data = data.model_dump(
+        exclude_unset=True
+    )
+
+    for field, value in update_data.items():
+
+        setattr(
+            education,
+            field,
+            value
+        )
+
+    db.commit()
+    db.refresh(education)
+
+    return education

@@ -16,8 +16,25 @@ class JobApplication(Base):
 
     user_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("users.id", ondelete="CASCADE"),
+        ForeignKey(
+            "users.id",
+            ondelete="CASCADE"
+        ),
         nullable=False
+    )
+
+    # ID of the job.
+    # For internal jobs -> jobs.id
+    # For external jobs -> external_jobs.id
+    job_id: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True
+    )
+
+    # "internal" or "external"
+    job_type: Mapped[str | None] = mapped_column(
+        String(20),
+        nullable=True
     )
 
     job_title: Mapped[str] = mapped_column(
@@ -60,5 +77,6 @@ class JobApplication(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
-        server_default=func.now()
+        server_default=func.now(),
+        onupdate=func.now()
     )
