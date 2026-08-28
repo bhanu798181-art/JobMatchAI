@@ -971,6 +971,142 @@ def calculate_job_match(
         "reasons": reasons
     }
 
+# ==================================================
+# DETECT EXPERIENCE REQUIREMENT FROM EXTERNAL JOB
+# ==================================================
+
+def detect_external_experience_requirement(
+    title: str,
+    description: str
+) -> dict:
+
+    text = (
+        f"{title or ''} "
+        f"{description or ''}"
+    )
+
+    text = (
+        text
+        .lower()
+        .replace("-", " ")
+        .replace("_", " ")
+    )
+
+    # --------------------------------------------------
+    # Fresher / entry-level
+    # --------------------------------------------------
+
+    if re.search(
+        r"\b(fresher|freshers|entry level|entry-level|"
+        r"graduate|graduates|0 years?|0 year experience)\b",
+        text
+    ):
+
+        return {
+            "type": "fresher",
+            "min_months": 0
+        }
+
+    # --------------------------------------------------
+    # Numeric experience
+    # Examples:
+    # 2 years
+    # 2+ years
+    # 3 to 5 years
+    # 3-5 years
+    # --------------------------------------------------
+
+    range_match = re.search(
+        r"\b(\d+(?:\.\d+)?)\s*"
+        r"(?:to|through)\s*"
+        r"(\d+(?:\.\d+)?)\s*years?\b",
+        text
+    )
+
+    if not range_match:
+
+        range_match = re.search(
+            r"\b(\d+(?:\.\d+)?)\s*"
+            r"(?:-|–)\s*"
+            r"(\d+(?:\.\d+)?)\s*years?\b",
+            text
+        )
+
+    if range_match:
+
+        min_years = float(
+            range_match.group(1)
+        )
+
+        return {
+            "type": "years",
+            "min_months": round(
+                min_years * 12
+            )
+        }
+
+    plus_match = re.search(
+        r"\b(\d+(?:\.\d+)?)\s*\+\s*years?\b",
+        text
+    )
+
+    if plus_match:
+
+        min_years = float(
+            plus_match.group(1)
+        )
+
+        return {
+            "type": "years",
+            "min_months": round(
+                min_years * 12
+            )
+        }
+
+    single_match = re.search(
+        r"\b(\d+(?:\.\d+)?)\s*years?\s*"
+        r"(?:of\s*)?(?:relevant\s*)?experience\b",
+        text
+    )
+
+    if single_match:
+
+        min_years = float(
+            single_match.group(1)
+        )
+
+        return {
+            "type": "years",
+            "min_months": round(
+                min_years * 12
+            )
+        }
+
+    # --------------------------------------------------
+    # Senior / Lead
+    #
+    # We know experience is expected,
+    # but we do NOT invent a number of years.
+    # --------------------------------------------------
+
+    if re.search(
+        r"\b(senior|sr|lead|principal|manager)\b",
+        title.lower()
+    ):
+
+        return {
+            "type": "senior",
+            "min_months": None
+        }
+
+    # --------------------------------------------------
+    # No reliable experience requirement found
+    # --------------------------------------------------
+
+    return {
+        "type": None,
+        "min_months": None
+    }
 
 # ==================================================
 # MATCH EXTERNAL JOB
@@ -1185,9 +1321,148 @@ def calculate_external_job_match(
         reasons.append(
             "Employment type not specified"
         )
+    # ==================================================
+    # 5. Experience - 15 points
+    # ==================================================
+
+    experience_requirement = (
+        detect_external_experience_requirement(
+            job.title or "",
+            job.description or ""
+        )
+    )
+
+    student_experience_months = 0
+
+    for experience in (
+        student_data.get("experiences", [])
+    ):
+
+        if experience.duration_months:
+
+            student_experience_months += (
+                experience.duration_months
+            )
+
+    experience_type = (
+        experience_requirement["type"]
+    )
+
+    required_months = (
+        experience_requirement["min_months"]
+    )
+
+    if experience_type:
+
+        maximum_score += 15
+
+        # --------------------------------------------------
+        # Fresher requirement
+        # --------------------------------------------------
+
+        if experience_type == "fresher":
+
+            if student_experience_months == 0:
+
+                score += 15
+
+                reasons.append(
+                    "Fresher requirement matches"
+                )
+
+            else:
+
+                reasons.append(
+                    "Fresher requirement does not match"
+                )
+
+        # --------------------------------------------------
+        # Numeric experience requirement
+        # --------------------------------------------------
+
+        elif (
+            experience_type == "years"
+            and required_months is not None
+        ):
+
+            if (
+                student_experience_months
+                >= required_months
+            ):
+
+                score += 15
+
+                reasons.append(
+                    "Experience requirement satisfied"
+                )
+
+            elif student_experience_months > 0:
+
+                partial_experience_score = round(
+                    (
+                        student_experience_months
+                        /
+                        required_months
+                    )
+                    * 15
+                )
+
+                partial_experience_score = min(
+                    partial_experience_score,
+                    15
+                )
+
+                score += (
+                    partial_experience_score
+                )
+
+                reasons.append(
+                    "Some relevant experience available"
+                )
+
+            else:
+
+                reasons.append(
+                    "Required experience not met"
+                )
+
+        # --------------------------------------------------
+        # Senior / Lead requirement
+        # --------------------------------------------------
+
+        elif experience_type == "senior":
+
+            if student_experience_months >= 36:
+
+                score += 15
+
+                reasons.append(
+                    "Experience level matches senior/lead role"
+                )
+
+            elif student_experience_months > 0:
+
+                score += 5
+
+                reasons.append(
+                    "Limited experience for senior/lead role"
+                )
+
+            else:
+
+                reasons.append(
+                    "Senior/lead role requires experience"
+                )
+
+    else:
+
+        reasons.append(
+            "Experience requirement not specified"
+        )
+
 
     # ==================================================
-    # 5. Skills - 40 points
+    # 6. Skills - 40 points
     # ==================================================
 
     job_skills = (
@@ -1255,7 +1530,7 @@ def calculate_external_job_match(
         )
 
     # ==================================================
-    # 6. Job title relevance - 10 points
+    # 7. Job title relevance - 10 points
     # ==================================================
 
     title_text = (
@@ -1296,36 +1571,27 @@ def calculate_external_job_match(
     # ==================================================
     # NORMALIZE SCORE
     #
-    # Example:
-    #
-    # Location = available
-    # Skills   = available
-    # Title    = available
-    #
-    # Maximum = 70
-    #
-    # If all three match:
-    # 70 / 70 = 100%
+    # Fixed denominator (not dependent on how much data
+    # the job posting happens to include). A sparse
+    # posting can no longer inflate to 100% just because
+    # it's missing fields — missing fields simply earn
+    # 0 points instead of being excluded from the total.
     # ==================================================
 
-    if maximum_score > 0:
+    TOTAL_POSSIBLE_SCORE = 115  # Location20 + WorkMode10 + Salary10 + Employment10 + Experience15 + Skills40 + Title10
 
-        final_score = round(
-            (
-                score
-                /
-                maximum_score
-            )
-            * 100
+    final_score = round(
+        (
+            score
+            /
+            TOTAL_POSSIBLE_SCORE
         )
+        * 100
+    )
 
-    else:
-
-        final_score = 0
-
-    final_score = min(
-        final_score,
-        100
+    final_score = max(
+        min(final_score, 100),
+        0
     )
 
     # ==================================================

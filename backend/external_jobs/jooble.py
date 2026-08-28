@@ -59,35 +59,35 @@ JOOBLE_BASE_URL = (
 # ==================================================
 
 def clean_text(value):
-
     if not value:
         return ""
 
     text = str(value)
 
-    # Remove HTML
+    # Remove HTML tags
     text = re.sub(
         r"<[^>]+>",
         " ",
         text
     )
 
-    # Common HTML entities
-    replacements = {
-        "&nbsp;": " ",
-        "&amp;": "&",
-        "&lt;": "<",
-        "&gt;": ">",
-        "&quot;": '"',
-        "&#39;": "'",
-    }
+    # Decode HTML entities
+    import html
 
-    for old, new in replacements.items():
+    text = html.unescape(text)
 
-        text = text.replace(
-            old,
-            new
-        )
+    # Remove common markdown formatting
+    text = re.sub(
+        r"#{1,6}\s*",
+        "",
+        text
+    )
+
+    # Replace bullets with readable separators
+    text = text.replace(
+        "•",
+        " • "
+    )
 
     # Normalize whitespace
     text = re.sub(
@@ -771,7 +771,8 @@ def save_jooble_jobs(
             )
 
             description = (
-                job.get("snippet")
+                job.get("description")
+                or job.get("snippet")
                 or ""
             )
 
@@ -844,56 +845,6 @@ def save_jooble_jobs(
                 job.get("updated")
             )
 
-            print()
-            print(
-                "----------------------------------------"
-            )
-
-            print(
-                "Job:",
-                title
-            )
-
-            print(
-                "Company:",
-                company_name
-            )
-
-            print(
-                "Location:",
-                location or "Not specified"
-            )
-
-            print(
-                "Work Mode:",
-                work_mode or "Not detected"
-            )
-
-            print(
-                "Employment:",
-                employment_type or "Not detected"
-            )
-
-            print(
-                "Salary:",
-                (
-                    f"{salary_min} - {salary_max}"
-                    if salary_min is not None
-                    else "Not detected"
-                )
-            )
-
-            print(
-                "Skills:",
-                required_skills
-                if required_skills
-                else "None detected"
-            )
-
-            print(
-                "Posted:",
-                posted_date or "Not detected"
-            )
 
             # --------------------------------------------------
             # Find duplicate by Jooble ID

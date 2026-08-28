@@ -2285,22 +2285,77 @@ return (
           Why this job matches you
         </h4>
 
-        <div className="reason-list">
+<div className="reason-list">
 
-          {job.reasons.map(
-            (reason, index) => (
+  {job.reasons.map(
+    (reason, index) => {
 
-              <span
-                key={index}
-                className="reason"
-              >
-                ✓ {reason}
-              </span>
+      const reasonText = String(
+        reason || ""
+      );
 
-            )
-          )}
+      const isNegative =
+        reasonText.toLowerCase().includes(
+          "does not match"
+        ) ||
+        reasonText.toLowerCase().includes(
+          "does not meet"
+        ) ||
+        reasonText.toLowerCase().includes(
+          "not met"
+        ) ||
+        reasonText.toLowerCase().includes(
+          "requires experience"
+        );
 
-        </div>
+      const isNeutral =
+        reasonText.toLowerCase().includes(
+          "not specified"
+        ) ||
+        reasonText.toLowerCase().includes(
+          "no detected"
+        ) ||
+        reasonText.toLowerCase().includes(
+          "no work mode preference"
+        ) ||
+        reasonText.toLowerCase().includes(
+          "no employment type preference"
+        ) ||
+        reasonText.toLowerCase().includes(
+          "not directly match"
+        );
+
+      return (
+        <span
+          key={index}
+          className={
+            `reason ${
+              isNegative
+                ? "reason-negative"
+                : isNeutral
+                ? "reason-neutral"
+                : "reason-positive"
+            }`
+          }
+        >
+
+          {isNegative
+            ? "✕"
+            : isNeutral
+            ? "•"
+            : "✓"}
+
+          {" "}
+
+          {reasonText}
+
+        </span>
+      );
+
+    }
+  )}
+
+</div>
 
       </div>
 
@@ -3344,18 +3399,22 @@ return (
             </div>
 
 
-            <div className="modal-section">
+<div className="modal-section">
 
-              <h3>
-                Job Description
-              </h3>
+  <h3>
+    Job Description
+  </h3>
 
-              <p>
-                {selectedJob.description ||
-                  "No job description available."}
-              </p>
+  <div
+    className="job-description"
+    dangerouslySetInnerHTML={{
+      __html:
+        selectedJob.description ||
+        "<p>No job description available.</p>"
+    }}
+  />
 
-            </div>
+</div>
 
 
             {selectedJob.job_type !== "external" && (
@@ -3482,32 +3541,48 @@ return (
 
             <div className="modal-actions">
 
-              <button
-                className="apply-button"
-                onClick={() =>
-                  handleApply(selectedJob)
-                }
-                disabled={applying}
-              >
-                {applying
-                  ? "Applying..."
-                  : selectedJob.job_type === "external"
-                  ? "Apply on Original Site →"
-                  : "Apply for Job →"}
-              </button>
+  {selectedJob.job_type === "external" &&
+    selectedJob.application_url && (
 
+      <button
+        className="secondary-button"
+        onClick={() =>
+          window.open(
+            selectedJob.application_url,
+            "_blank",
+            "noopener,noreferrer"
+          )
+        }
+      >
+        View Full Job →
+      </button>
 
-              <button
-                className="close-button"
-                onClick={() =>
-                  setSelectedJob(null)
-                }
-              >
-                Close
-              </button>
+  )}
 
-            </div>
+  <button
+    className="apply-button"
+    onClick={() =>
+      handleApply(selectedJob)
+    }
+    disabled={applying}
+  >
+    {applying
+      ? "Applying..."
+      : selectedJob.job_type === "external"
+      ? "Apply & Record Application →"
+      : "Apply for Job →"}
+  </button>
 
+  <button
+    className="close-button"
+    onClick={() =>
+      setSelectedJob(null)
+    }
+  >
+    Close
+  </button>
+
+</div>
 
             {applicationMessage && (
 
