@@ -37,6 +37,15 @@ from external_jobs.adzuna import (
     save_adzuna_jobs
 )
 
+# --------------------------------------------------
+# Import JobDataLake collector
+# --------------------------------------------------
+
+from external_jobs.jobdatalake import (
+    fetch_jobdatalake_jobs,
+    save_jobdatalake_jobs
+)
+
 
 # --------------------------------------------------
 # Collection configuration
@@ -305,6 +314,117 @@ def run_job_collection():
 
 
     # ==================================================
+    # JOBDATALAKE COLLECTION
+    # ==================================================
+
+    print()
+    print("=" * 60)
+    print("JOBDATALAKE COLLECTION")
+    print("=" * 60)
+
+    for index, search in enumerate(
+        SEARCHES,
+        start=1
+    ):
+
+        keyword = search["keyword"]
+        location = search["location"]
+
+        print()
+        print("-" * 60)
+
+        print(
+            f"JobDataLake Search {index}/{len(SEARCHES)}"
+        )
+
+        print(
+            f"Keyword : {keyword}"
+        )
+
+        print(
+            f"Location: {location}"
+        )
+
+        print("-" * 60)
+
+        try:
+
+            # --------------------------------------------------
+            # Fetch JobDataLake jobs
+            # --------------------------------------------------
+
+            jobdatalake_jobs = (
+                fetch_jobdatalake_jobs(
+                    keyword=keyword,
+                    location=location,
+                    results_per_page=RESULTS_PER_PAGE
+                )
+            )
+
+            jobdatalake_received = len(
+                jobdatalake_jobs
+            )
+
+            print(
+                f"JobDataLake jobs received: "
+                f"{jobdatalake_received}"
+            )
+
+            total_received += (
+                jobdatalake_received
+            )
+
+            # --------------------------------------------------
+            # Save JobDataLake jobs
+            # --------------------------------------------------
+
+            (
+                jobdatalake_saved,
+                jobdatalake_duplicates
+            ) = save_jobdatalake_jobs(
+                jobdatalake_jobs
+            )
+
+            print(
+                f"JobDataLake new jobs saved: "
+                f"{jobdatalake_saved}"
+            )
+
+            print(
+                f"JobDataLake duplicates found: "
+                f"{jobdatalake_duplicates}"
+            )
+
+            total_saved += (
+                jobdatalake_saved
+            )
+
+            total_duplicates += (
+                jobdatalake_duplicates
+            )
+
+            successful_searches += 1
+
+            print(
+                "JobDataLake status: SUCCESS"
+            )
+
+        except Exception as error:
+
+            failed_searches += 1
+
+            print(
+                "JobDataLake status: FAILED"
+            )
+
+            print(
+                f"JobDataLake error: {error}"
+            )
+
+            # Continue with the next search
+            continue
+
+    # ==================================================
     # FINAL SUMMARY
     # ==================================================
 
@@ -337,7 +457,7 @@ def run_job_collection():
     print("-" * 60)
 
     print(
-        f"Total searches       : {len(SEARCHES) * 2}"
+        f"Total searches       : {len(SEARCHES) * 3}"
     )
 
     print(
