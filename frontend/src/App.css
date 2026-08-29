@@ -6861,3 +6861,299 @@ button:active {
   border-color: #8b5cf6;
   box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
 }
+/* ==================================================
+   FINAL MOBILE POLISH
+   ================================================== */
+
+@media (max-width: 600px) {
+
+  /* Prevent horizontal scrolling */
+  html,
+  body,
+  #root {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Header */
+  .header {
+    height: auto;
+    min-height: 68px;
+    padding: 10px 16px;
+    gap: 10px;
+  }
+
+  .logo {
+    font-size: 18px;
+    gap: 8px;
+  }
+
+  .logo-icon {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+  }
+
+  .user {
+    margin-left: auto;
+    padding-left: 8px;
+    gap: 7px;
+  }
+
+  .user strong {
+    font-size: 12px;
+  }
+
+  .user small {
+    font-size: 10px;
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  /* Main content */
+  .container {
+    width: 94%;
+    max-width: none;
+    padding: 28px 0 45px;
+  }
+
+  /* Welcome section */
+  .welcome {
+    margin-bottom: 22px;
+    gap: 16px;
+  }
+
+  .welcome h1 {
+    font-size: 28px;
+    line-height: 1.2;
+  }
+
+  .welcome > div > p:last-child {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* Profile card */
+  .profile-card {
+    width: 100%;
+    padding: 14px;
+  }
+
+  /* Statistics */
+  .stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 30px;
+  }
+
+  .stat-card {
+    min-height: 82px;
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .stat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+
+  .stat-card span {
+    font-size: 11px;
+  }
+
+  .stat-card strong {
+    font-size: 18px;
+  }
+
+  /* Section heading */
+  .section-heading {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .section-heading h2 {
+    font-size: 20px;
+  }
+
+  .refresh-button {
+    flex-shrink: 0;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  /* Filters */
+  .job-filters {
+    padding: 12px;
+    gap: 9px;
+    margin-bottom: 18px;
+  }
+
+  .job-filters input,
+  .job-filters select,
+  .job-filters button {
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+  }
+
+  /* Job cards */
+  .jobs-list {
+    gap: 14px;
+  }
+
+  .job-card {
+    padding: 18px;
+    border-radius: 15px;
+  }
+
+  .job-top {
+    gap: 11px;
+  }
+
+  .company-logo {
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+  }
+
+  .job-top h3 {
+    font-size: 16px;
+  }
+
+  .job-top p {
+    font-size: 12px;
+  }
+
+  /* Match badge */
+  .match-badge {
+    padding: 7px 9px;
+    font-size: 11px;
+  }
+
+  /* Job information */
+  .job-details {
+    align-items: stretch;
+    margin: 16px 0;
+    padding: 12px 0;
+    gap: 8px;
+  }
+
+  .job-details span {
+    width: 100%;
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+
+  /* Reasons */
+  .reasons h4 {
+    font-size: 12px;
+  }
+
+  .reason-list {
+    gap: 6px;
+  }
+
+  .reason {
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+
+  /* Job footer */
+  .job-footer {
+    margin-top: 16px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .apply-button {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  /* Profile */
+  .profile-display-card {
+    padding: 18px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .profile-avatar.large {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+  }
+
+  /* Skills */
+  .student-skill-chip {
+    width: 100%;
+    min-height: auto;
+    padding: 12px;
+  }
+
+  .student-skill-chip .skill-info {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 7px 10px;
+  }
+
+  .student-skill-chip .skill-info strong {
+    width: 100%;
+    white-space: normal;
+  }
+
+  .student-skill-chip .skill-category,
+  .student-skill-chip .skill-proficiency {
+    white-space: normal;
+  }
+
+  /* Applications */
+  .application-card {
+    padding: 16px;
+  }
+
+  .application-buttons {
+    gap: 6px;
+  }
+
+  .application-buttons button {
+    min-height: 40px;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    padding: 10px;
+  }
+
+  .job-modal,
+  .application-modal,
+  .edit-application-modal {
+    width: 100%;
+    max-width: none;
+    padding: 20px;
+    border-radius: 15px;
+  }
+
+  .job-modal h2 {
+    font-size: 22px;
+  }
+
+  .modal-details {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .modal-actions .apply-button,
+  .close-button {
+    width: 100%;
+    min-height: 44px;
+  }
+}
