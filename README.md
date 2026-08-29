@@ -12,29 +12,37 @@ JobMatch AI is a full-stack web application that brings job opportunities from m
 
 Instead of checking multiple job websites separately, users can discover relevant opportunities through a unified platform with **profile-based job matching, match scores, match explanations, and application tracking**.
 
----
 ## 📸 Screenshots
 
 ### 🔐 Login & Registration
 
-The authentication interface allows students and companies to securely create accounts and log in.
+Secure login and registration interface for both students and companies.
+
+![Login Screen](screenshots/01-login.png)
+
+---
 
 ### 🎯 Student Dashboard
 
-The dashboard displays profile information, matching job statistics, recommended jobs and profile completion.
+The dashboard shows profile information, education, skills, matching jobs, and quick statistics.
+
+![Student Dashboard](screenshots/02-student-dashboard.png)
+
+---
 
 ### 💼 Recommended Jobs
 
-Jobs are displayed with match percentages, job details, filters and explanations showing why each job matches the student's profile.
+Students receive personalized job recommendations with match scores and match reasons.
+
+![Recommended Jobs](screenshots/03-recommended-jobs.png)
+
+---
 
 ### 📄 Application Tracking
 
-Students can view, edit and delete their job applications and track their application status.
+Students can track applied jobs, view application details, update notes and monitor application status.
 
-### 🏢 Company Dashboard
-
-Companies can view their posted jobs and manage applications received from students.
-
+![Applications](screenshots/04-applications.png)
 
 
 ## ✨ Project Highlights
