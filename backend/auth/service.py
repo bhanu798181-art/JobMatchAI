@@ -7,20 +7,31 @@ from sqlalchemy.orm import Session as DBSession
 from auth.password import hash_password, verify_password
 from auth.schemas import LoginRequest, RegisterRequest
 from models.session import Session
+from models.student_profile import StudentProfile
 from models.user import User
 
 
-def register_user(db: DBSession, data: RegisterRequest) -> User:
+def register_user(
+    db: DBSession,
+    data: RegisterRequest
+) -> User:
+
     # 1. Check whether the email already exists
     existing_user = db.scalar(
-        select(User).where(User.email == data.email)
+        select(User).where(
+            User.email == data.email
+        )
     )
 
     if existing_user:
-        raise ValueError("Email is already registered")
+        raise ValueError(
+            "Email is already registered"
+        )
 
     # 2. Hash the password
-    password_hash = hash_password(data.password)
+    password_hash = hash_password(
+        data.password
+    )
 
     # 3. Create the new user
     user = User(
@@ -33,10 +44,24 @@ def register_user(db: DBSession, data: RegisterRequest) -> User:
     # 4. Add the user to the database
     db.add(user)
 
-    # 5. Save the change
+    # 5. Flush so the generated user ID is available
+    db.flush()
+
+    # 6. Automatically create a student profile
+    #    for newly registered student accounts
+    if data.role == "student":
+
+        student_profile = StudentProfile(
+            user_id=user.id,
+            full_name=""
+        )
+
+        db.add(student_profile)
+
+    # 7. Save the user and profile together
     db.commit()
 
-    # 6. Refresh so generated values such as ID are available
+    # 8. Refresh the user
     db.refresh(user)
 
     return user

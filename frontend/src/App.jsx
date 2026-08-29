@@ -4,10 +4,77 @@ import "./App.css";
 const API_URL = "http://localhost:8000";
 
 function App() {
-  const [email, setEmail] = useState("matchingstudent@example.com");
-  const [password, setPassword] = useState("student123");
+const [email, setEmail] = useState("");
+const [password, setPassword] = useState("");
 
 const [user, setUser] = useState(null);
+const [checkingSession, setCheckingSession] = useState(true);
+useEffect(() => {
+  async function checkSession() {
+    try {
+      const response = await fetch(
+        `${API_URL}/auth/me`,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            Accept: "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        setUser(null);
+        return;
+      }
+
+      const data = await response.json();
+
+if (data.user) {
+  setUser(data.user);
+
+  // Reload saved data after page refresh
+  if (data.user.role === "student") {
+    await loadProfile();
+    await loadEducation();
+    await loadJobs();
+    await loadApplications();
+    await loadSkills();
+  }
+
+if (data.user.role === "company") {
+  await loadCompanyJobs();
+  await loadCompanyApplications();
+}
+
+} else {
+  setUser(null);
+}
+
+    } catch (error) {
+      console.error(
+        "Session check failed:",
+        error
+      );
+
+      setUser(null);
+
+    } finally {
+      setCheckingSession(false);
+    }
+  }
+
+  checkSession();
+}, []);
+
+// Registration
+const [showRegister, setShowRegister] = useState(false);
+const [registerEmail, setRegisterEmail] = useState("");
+const [registerPassword, setRegisterPassword] = useState("");
+const [registerRole, setRegisterRole] = useState("student");
+const [registering, setRegistering] = useState(false);
+const [registerError, setRegisterError] = useState("");
+const [registerMessage, setRegisterMessage] = useState("");
 
 // Student matching jobs
 const [jobs, setJobs] = useState([]);
@@ -47,6 +114,12 @@ const [studentEducation, setStudentEducation] = useState([]);
 const [loadingEducation, setLoadingEducation] = useState(false);
 const [educationError, setEducationError] = useState("");
   const [applications, setApplications] = useState([]);
+  // Company applications
+const [companyApplications, setCompanyApplications] = useState([]);
+const [loadingCompanyApplications, setLoadingCompanyApplications] =
+  useState(false);
+const [companyApplicationsError, setCompanyApplicationsError] =
+  useState("");
 
   // Student skills
   const [allSkills, setAllSkills] = useState([]);
@@ -122,7 +195,113 @@ const [educationError, setEducationError] = useState("");
     setLoadingJobs(false);
   }
 }
+// ==================================================
+// LOAD COMPANY APPLICATIONS
+// ==================================================
 
+async function loadCompanyApplications() {
+  setLoadingCompanyApplications(true);
+  setCompanyApplicationsError("");
+
+  try {
+    const response = await fetch(
+      `${API_URL}/applications/company`,
+      {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.detail || "Unable to load applications"
+      );
+    }
+
+    setCompanyApplications(
+      Array.isArray(data) ? data : []
+    );
+
+  } catch (error) {
+    console.error(
+      "Company applications error:",
+      error
+    );
+
+    setCompanyApplicationsError(
+      error.message ||
+        "Unable to load company applications."
+    );
+
+    setCompanyApplications([]);
+  } finally {
+    setLoadingCompanyApplications(false);
+  }
+}
+
+// ==================================================
+// UPDATE COMPANY APPLICATION STATUS
+// ==================================================
+
+async function handleCompanyApplicationStatus(
+  applicationId,
+  newStatus
+) {
+  try {
+    const response = await fetch(
+      `${API_URL}/applications/company/${applicationId}/status`,
+      {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          application_status: newStatus,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.detail ||
+          "Unable to update application status"
+      );
+    }
+
+    // Update the application immediately on screen
+    setCompanyApplications((currentApplications) =>
+      currentApplications.map((application) =>
+        application.id === applicationId
+          ? {
+              ...application,
+              application_status:
+                data.application_status,
+            }
+          : application
+      )
+    );
+
+  } catch (error) {
+    console.error(
+      "Company application status error:",
+      error
+    );
+
+    alert(
+      error.message ||
+        "Unable to update application status."
+    );
+  }
+}
 // ==================================================
 // LOAD COMPANY JOBS
 // ==================================================
@@ -438,85 +617,99 @@ async function handleUpdateProfile(event) {
     }
 
     // ----------------------------------------------
-    // UPDATE EDUCATION
-    // ----------------------------------------------
+// CREATE / UPDATE EDUCATION
+// ----------------------------------------------
 
-    if (studentEducation.length > 0) {
-      const educationId =
-        studentEducation[0].id;
+const educationPayload = {
+  qualification:
+    profileForm.qualification || null,
 
-      const educationResponse = await fetch(
-        `${API_URL}/profile/education/${educationId}`,
-        {
-          method: "PUT",
-          credentials: "include",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            qualification:
-              profileForm.qualification || null,
+  degree_name:
+    profileForm.degree_name || null,
 
-            degree_name:
-              profileForm.degree_name || null,
+  branch:
+    profileForm.branch || null,
 
-            branch:
-              profileForm.branch || null,
+  college:
+    profileForm.college || null,
 
-            college:
-              profileForm.college || null,
+  graduation_year:
+    profileForm.graduation_year
+      ? Number(profileForm.graduation_year)
+      : null,
 
-            graduation_year:
-              profileForm.graduation_year
-                ? Number(profileForm.graduation_year)
-                : null,
+  cgpa:
+    profileForm.cgpa !== ""
+      ? Number(profileForm.cgpa)
+      : null,
 
-            cgpa:
-              profileForm.cgpa !== ""
-                ? Number(profileForm.cgpa)
-                : null,
+  percentage:
+    profileForm.percentage !== ""
+      ? Number(profileForm.percentage)
+      : null,
+};
 
-            percentage:
-              profileForm.percentage !== ""
-                ? Number(profileForm.percentage)
-                : null,
-          }),
-        }
-      );
+const educationExists =
+  studentEducation.length > 0;
 
-      const educationData =
-        await educationResponse.json();
+const educationUrl = educationExists
+  ? `${API_URL}/profile/education/${studentEducation[0].id}`
+  : `${API_URL}/profile/education`;
 
-      if (!educationResponse.ok) {
-        let message =
-          "Unable to update education.";
+const educationMethod = educationExists
+  ? "PUT"
+  : "POST";
 
-        if (
-          typeof educationData.detail ===
-          "string"
-        ) {
-          message = educationData.detail;
-        } else if (
-          Array.isArray(educationData.detail)
-        ) {
-          message = educationData.detail
-            .map(
-              (item) =>
-                item.msg ||
-                "Invalid education information"
-            )
-            .join(", ");
-        }
+const educationResponse = await fetch(
+  educationUrl,
+  {
+    method: educationMethod,
+    credentials: "include",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(
+      educationPayload
+    ),
+  }
+);
 
-        throw new Error(message);
-      }
+const educationData =
+  await educationResponse.json();
 
-      // Update education displayed on the page
-      setStudentEducation([
-        educationData,
-      ]);
-    }
+if (!educationResponse.ok) {
+
+  let message =
+    educationExists
+      ? "Unable to update education."
+      : "Unable to save education.";
+
+  if (
+    typeof educationData.detail ===
+    "string"
+  ) {
+    message = educationData.detail;
+  } else if (
+    Array.isArray(educationData.detail)
+  ) {
+    message = educationData.detail
+      .map(
+        (item) =>
+          item.msg ||
+          "Invalid education information"
+      )
+      .join(", ");
+  }
+
+  throw new Error(message);
+}
+
+// Update education displayed on the page
+setStudentEducation([
+  educationData,
+]);
+
 
     // ----------------------------------------------
     // UPDATE PROFILE STATE
@@ -767,9 +960,10 @@ async function handleLogin(event) {
     // COMPANY LOGIN
     // ==================================================
 
-    if (data.user.role === "company") {
-      await loadCompanyJobs();
-    }
+if (data.user.role === "company") {
+  await loadCompanyJobs();
+  await loadCompanyApplications();
+}
 
   } catch (error) {
     console.error("Login error:", error);
@@ -779,52 +973,103 @@ async function handleLogin(event) {
     setLoggingIn(false);
   }
 }
+// ==================================================
+// REGISTRATION
+// ==================================================
+
+async function handleRegister(event) {
+  event.preventDefault();
+
+  setRegistering(true);
+  setRegisterError("");
+  setRegisterMessage("");
+
+  try {
+    const response = await fetch(`${API_URL}/auth/register`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: registerEmail,
+        password: registerPassword,
+        role: registerRole,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.detail || "Registration failed"
+      );
+    }
+
+    setRegisterMessage(
+      data.message || "Registration successful. You can now login."
+    );
+
+    setEmail(registerEmail);
+    setPassword("");
+
+    setRegisterEmail("");
+    setRegisterPassword("");
+
+  } catch (error) {
+    console.error("Registration error:", error);
+    setRegisterError(error.message);
+  } finally {
+    setRegistering(false);
+  }
+}
   // ==================================================
   // LOGOUT
   // ==================================================
 
-  function handleLogout() {
-    setUser(null);
-    setJobs([]);
-    setApplications([]);
-    setStudentProfile(null);
-setEditingProfile(false);
-setProfileError("");
-
-setProfileForm({
-  full_name: data.full_name || "",
-  phone: data.phone || "",
-  city: data.city || "",
-  state: data.state || "",
-  country: data.country || "",
-
-  qualification:
-    studentEducation[0]?.qualification || "",
-  degree_name:
-    studentEducation[0]?.degree_name || "",
-  branch:
-    studentEducation[0]?.branch || "",
-  college:
-    studentEducation[0]?.college || "",
-  graduation_year:
-    studentEducation[0]?.graduation_year || "",
-  cgpa:
-    studentEducation[0]?.cgpa ?? "",
-  percentage:
-    studentEducation[0]?.percentage ?? "",
-});
-    setAllSkills([]);
-    setStudentSkills([]);
-    setSelectedSkillId("");
-    setSkillProficiency("");
-    setSelectedJob(null);
-    setSelectedApplication(null);
-    setEditingApplication(null);
-    setApplicationMessage("");
-    setLoginError("");
-    setJobsError("");
-    setApplicationsError("");
+async function handleLogout() {
+  try {
+    await fetch(
+      `${API_URL}/auth/logout`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+        },
+      }
+    );
+  } catch (error) {
+    console.error("Logout error:", error);
   }
+
+  // Clear frontend state
+  setUser(null);
+  setJobs([]);
+  setApplications([]);
+  setStudentProfile(null);
+  setEditingProfile(false);
+  setProfileError("");
+
+  setProfileForm({
+    full_name: "",
+    phone: "",
+    city: "",
+    state: "",
+    country: "",
+    qualification: "",
+    degree_name: "",
+    branch: "",
+    college: "",
+    graduation_year: "",
+    cgpa: "",
+    percentage: "",
+  });
+
+  setEmail("");
+  setPassword("");
+}
 
   // ==================================================
 // VIEW JOB DETAILS
@@ -1313,10 +1558,20 @@ async function handleOpenAppliedJob(application) {
   // LOGIN SCREEN
   // ==================================================
 
-  if (!user) {
+if (checkingSession) {
+  return (
+    <div className="login-page">
+      <h2>Checking session...</h2>
+    </div>
+  );
+}
+
+
+if (!user) {
     return (
       <div className="login-page">
 
+        {/* Login card */}
         <div className="login-card">
 
           <div className="login-logo">
@@ -1330,71 +1585,183 @@ async function handleOpenAppliedJob(application) {
             Login to see jobs matched to your profile.
           </p>
 
-          <form onSubmit={handleLogin}>
+{showRegister ? (
+  <form
+    className="register-form"
+    onSubmit={handleRegister}
+  >
 
-            <label>Email</label>
+<div className="register-heading">
+  <h2>Create Your Account</h2>
+  <p>
+    Join JobMatch AI and discover opportunities made for you.
+  </p>
+</div>
 
-            <input
-              type="email"
-              value={email}
-              onChange={(event) =>
-                setEmail(event.target.value)
-              }
-              placeholder="Enter your email"
-              required
-            />
+<label>Email</label>
 
-            <label>Password</label>
+<input
+  type="email"
+  value={registerEmail}
+  onChange={(event) =>
+    setRegisterEmail(event.target.value)
+  }
+  placeholder="Enter your email"
+  required
+/>
 
-            <input
-              type="password"
-              value={password}
-              onChange={(event) =>
-                setPassword(event.target.value)
-              }
-              placeholder="Enter your password"
-              required
-            />
+    <label>Password</label>
 
-            {loginError && (
-              <div className="login-error">
-                {loginError}
-              </div>
-            )}
+    <input
+      type="password"
+      value={registerPassword}
+      onChange={(event) =>
+        setRegisterPassword(event.target.value)
+      }
+      placeholder="Create a password"
+      minLength={8}
+      required
+    />
 
-            <button
-              className="login-button"
-              type="submit"
-              disabled={loggingIn}
-            >
-              {loggingIn
-                ? "Logging in..."
-                : "Login"}
-            </button>
+<label>Account Type</label>
 
-          </form>
+<div className="account-type-options">
 
-          <div className="demo-login">
+  <button
+    type="button"
+    className={
+      registerRole === "student"
+        ? "account-type active"
+        : "account-type"
+    }
+    onClick={() => setRegisterRole("student")}
+  >
+    <span className="account-type-icon">🎓</span>
 
-            <strong>Student test account</strong>
+    <span>
+      <strong>Student</strong>
+      <small>Find jobs matched to you</small>
+    </span>
+  </button>
 
-            <span>
-              matchingstudent@example.com
-            </span>
+  <button
+    type="button"
+    className={
+      registerRole === "company"
+        ? "account-type active"
+        : "account-type"
+    }
+    onClick={() => setRegisterRole("company")}
+  >
+    <span className="account-type-icon">🏢</span>
 
-            <span>
-              student123
-            </span>
+    <span>
+      <strong>Company</strong>
+      <small>Find talented candidates</small>
+    </span>
+  </button>
 
-          </div>
+</div>
+
+    {registerError && (
+      <div className="login-error">
+        {registerError}
+      </div>
+    )}
+
+    {registerMessage && (
+      <div className="login-success">
+        {registerMessage}
+      </div>
+    )}
+
+<button
+  className="login-button register-submit"
+  type="submit"
+  disabled={registering}
+>
+      {registering
+        ? "Creating Account..."
+        : "Create Account"}
+    </button>
+
+    <button
+      type="button"
+      className="register-back"
+      onClick={() => {
+        setShowRegister(false);
+        setRegisterError("");
+        setRegisterMessage("");
+      }}
+    >
+      Back to Login
+    </button>
+
+  </form>
+) : (
+  <form onSubmit={handleLogin}>
+
+    <label>Email</label>
+
+    <input
+      type="email"
+      value={email}
+      onChange={(event) =>
+        setEmail(event.target.value)
+      }
+      placeholder="Enter your email"
+      required
+    />
+
+    <label>Password</label>
+
+    <input
+      type="password"
+      value={password}
+      onChange={(event) =>
+        setPassword(event.target.value)
+      }
+      placeholder="Enter your password"
+      required
+    />
+
+    {loginError && (
+      <div className="login-error">
+        {loginError}
+      </div>
+    )}
+
+    <button
+      className="login-button"
+      type="submit"
+      disabled={loggingIn}
+    >
+      {loggingIn
+        ? "Logging in..."
+        : "Login"}
+    </button>
+
+    <button
+      type="button"
+      className="login-button"
+      onClick={() => {
+        setShowRegister(true);
+        setRegisterError("");
+        setRegisterMessage("");
+      }}
+    >
+      Create Account
+    </button>
+
+  </form>
+)}
 
         </div>
-
       </div>
     );
   }
 
-    // ==================================================
+  // ==================================================
   // COMPANY DASHBOARD
   // ==================================================
 
@@ -1719,18 +2086,145 @@ async function handleOpenAppliedJob(application) {
             </div>
 
 
-            <div className="message">
+<div className="company-applications">
+
+  {loadingCompanyApplications && (
+    <div className="message">
+      <div className="spinner"></div>
+      <p>Loading applications...</p>
+    </div>
+  )}
+
+  {companyApplicationsError &&
+    !loadingCompanyApplications && (
+      <div className="message error">
+        <h3>Unable to load applications</h3>
+        <p>{companyApplicationsError}</p>
+      </div>
+    )}
+
+  {!loadingCompanyApplications &&
+    !companyApplicationsError &&
+    companyApplications.length === 0 && (
+      <div className="message">
+        <h3>No applications yet</h3>
+        <p>
+          Applications received for your company jobs
+          will appear here.
+        </p>
+      </div>
+    )}
+
+  {!loadingCompanyApplications &&
+    !companyApplicationsError &&
+    companyApplications.length > 0 && (
+
+      <div className="company-applications-list">
+
+        {companyApplications.map((application) => (
+
+          <article
+            className="company-application-card"
+            key={application.id}
+          >
+
+            <div className="applicant-avatar">
+              {(application.student_name || "S")
+                .charAt(0)
+                .toUpperCase()}
+            </div>
+
+            <div className="applicant-info">
 
               <h3>
-                Applicant Management
+                {application.student_name ||
+                  "Student"}
               </h3>
 
-              <p>
-                Applications received for your company
-                jobs will appear here.
+              <p className="applicant-email">
+                {application.student_email ||
+                  "Email not available"}
               </p>
 
+              <p className="applicant-job">
+                Applied for:{" "}
+                <strong>
+                  {application.job_title}
+                </strong>
+              </p>
+
+              <small>
+                {application.job_location ||
+                  "Location not specified"}
+              </small>
+
             </div>
+
+<div className="applicant-status">
+
+  <span
+    className={`application-status ${
+      (application.application_status || "Applied")
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+    }`}
+  >
+    {application.application_status || "Applied"}
+  </span>
+
+  <select
+    value={application.application_status || "Applied"}
+    onChange={(event) =>
+      handleCompanyApplicationStatus(
+        application.id,
+        event.target.value
+      )
+    }
+  >
+    <option value="Applied">
+      Applied
+    </option>
+
+    <option value="Reviewing">
+      Reviewing
+    </option>
+
+    <option value="Shortlisted">
+      Shortlisted
+    </option>
+
+    <option value="Interview">
+      Interview
+    </option>
+
+    <option value="Selected">
+      Selected
+    </option>
+
+    <option value="Rejected">
+      Rejected
+    </option>
+  </select>
+
+  <small>
+    {application.applied_at
+      ? new Date(
+          application.applied_at
+        ).toLocaleDateString()
+      : "Date not available"}
+  </small>
+
+</div>
+
+          </article>
+
+        ))}
+
+      </div>
+
+    )}
+
+</div>
 
           </section>
 
@@ -2019,6 +2513,175 @@ return (
               <strong>
   {studentProfile?.city || "Not specified"}
 </strong>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        {/* PROFILE COMPLETION + QUICK ACTIONS */}
+
+        <section className="dashboard-tools">
+
+          {/* PROFILE COMPLETION */}
+
+          <div className="completion-card">
+
+            <div className="completion-header">
+
+              <div>
+                <span className="completion-label">
+                  PROFILE COMPLETION
+                </span>
+
+                <h3>
+                  Complete your profile
+                </h3>
+
+                <p>
+                  A complete profile helps JobMatch AI
+                  find better job matches for you.
+                </p>
+              </div>
+
+              <div className="completion-percent">
+                {Math.min(
+                  100,
+                  Math.round(
+                    (
+                      (studentProfile ? 2 : 0) +
+                      (studentEducation.length > 0 ? 3 : 0) +
+                      (studentSkills.length > 0 ? 3 : 0)
+                    ) / 8 * 100
+                  )
+                )}%
+              </div>
+
+            </div>
+
+
+            <div className="completion-progress">
+
+              <div
+                className="completion-progress-fill"
+                style={{
+                  width: `${Math.min(
+                    100,
+                    Math.round(
+                      (
+                        (studentProfile ? 2 : 0) +
+                        (studentEducation.length > 0 ? 3 : 0) +
+                        (studentSkills.length > 0 ? 3 : 0)
+                      ) / 8 * 100
+                    )
+                  )}%`
+                }}
+              />
+
+            </div>
+
+
+            <div className="completion-footer">
+
+              <span>
+                {studentProfile
+                  ? "✓ Personal details"
+                  : "○ Personal details"}
+              </span>
+
+              <span>
+                {studentEducation.length > 0
+                  ? "✓ Education"
+                  : "○ Education"}
+              </span>
+
+              <span>
+                {studentSkills.length > 0
+                  ? "✓ Skills"
+                  : "○ Skills"}
+              </span>
+
+            </div>
+
+          </div>
+
+
+          {/* QUICK ACTIONS */}
+
+          <div className="quick-actions-card">
+
+            <div className="quick-actions-heading">
+
+              <span className="completion-label">
+                QUICK ACTIONS
+              </span>
+
+              <h3>
+                What would you like to do?
+              </h3>
+
+            </div>
+
+
+            <div className="quick-actions">
+
+              <a
+                href="#jobs"
+                className="quick-action"
+              >
+                <span className="quick-action-icon">
+                  💼
+                </span>
+
+                <span>
+                  <strong>Browse Jobs</strong>
+                  <small>
+                    Explore matched opportunities
+                  </small>
+                </span>
+
+                <b>→</b>
+              </a>
+
+
+              <a
+                href="#applications"
+                className="quick-action"
+              >
+                <span className="quick-action-icon">
+                  📄
+                </span>
+
+                <span>
+                  <strong>Applications</strong>
+                  <small>
+                    Track your applications
+                  </small>
+                </span>
+
+                <b>→</b>
+              </a>
+
+
+              <a
+                href="#profile"
+                className="quick-action"
+              >
+                <span className="quick-action-icon">
+                  👤
+                </span>
+
+                <span>
+                  <strong>Edit Profile</strong>
+                  <small>
+                    Keep your profile updated
+                  </small>
+                </span>
+
+                <b>→</b>
+              </a>
 
             </div>
 
@@ -3350,7 +4013,137 @@ return (
                 ? selectedJob.company_name || "External Company"
                 : `Company #${selectedJob.company_id}`}
             </p>
+{/* AI MATCH SCORE */}
 
+<div className="ai-match-card">
+
+  <div className="ai-match-header">
+
+    <div>
+      <span className="ai-match-label">
+        AI JOB MATCH
+      </span>
+
+      <h3>
+        Why this job is recommended for you
+      </h3>
+    </div>
+
+    <div className="ai-match-score">
+      <strong>
+        {selectedJob.match_score || 0}%
+      </strong>
+
+      <span>
+        Match
+      </span>
+    </div>
+
+  </div>
+
+
+  <div className="ai-match-progress">
+
+    <div
+      className="ai-match-progress-fill"
+      style={{
+        width: `${selectedJob.match_score || 0}%`
+      }}
+    />
+
+  </div>
+
+
+  <div className="ai-match-status">
+
+    <span className="ai-match-dot"></span>
+
+    {selectedJob.match_score >= 90
+      ? "Excellent match for your profile"
+      : selectedJob.match_score >= 70
+      ? "Strong match for your profile"
+      : selectedJob.match_score >= 50
+      ? "Good potential match"
+      : "Some requirements may not match"}
+
+  </div>
+
+</div>
+
+
+{/* MATCH REASONS */}
+
+{selectedJob.reasons &&
+  selectedJob.reasons.length > 0 && (
+
+    <div className="match-reasons-modal">
+
+      <h3>
+        ✨ Match Breakdown
+      </h3>
+
+      <div className="modal-reason-list">
+
+        {selectedJob.reasons.map(
+          (reason, index) => {
+
+            const reasonText =
+              String(reason || "");
+
+            const lower =
+              reasonText.toLowerCase();
+
+            const isNegative =
+              lower.includes("does not match") ||
+              lower.includes("does not meet") ||
+              lower.includes("not met") ||
+              lower.includes("requires experience");
+
+            const isNeutral =
+              lower.includes("not specified") ||
+              lower.includes("no detected") ||
+              lower.includes("not directly match") ||
+              lower.includes("not restricted");
+
+            return (
+              <div
+                key={index}
+                className={
+                  `modal-reason ${
+                    isNegative
+                      ? "negative"
+                      : isNeutral
+                      ? "neutral"
+                      : "positive"
+                  }`
+                }
+              >
+
+                <span className="modal-reason-icon">
+
+                  {isNegative
+                    ? "×"
+                    : isNeutral
+                    ? "•"
+                    : "✓"}
+
+                </span>
+
+                <span>
+                  {reasonText}
+                </span>
+
+              </div>
+            );
+
+          }
+        )}
+
+      </div>
+
+    </div>
+
+  )}
 
             <div className="modal-details">
 

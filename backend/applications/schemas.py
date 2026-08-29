@@ -85,3 +85,26 @@ class JobApplicationResponse(BaseModel):
     model_config = {
         "from_attributes": True
     }
+
+
+class CompanyApplicationResponse(BaseModel):
+    id: int
+    user_id: int
+
+    student_name: str | None = None
+    student_email: str | None = None
+
+    job_id: int | None
+    job_type: str | None
+
+    job_title: str
+    company_name: str
+    job_location: str | None
+
+    application_status: str
+    applied_at: datetime | None
+    notes: str | None
+
+    model_config = {
+        "from_attributes": True
+    }

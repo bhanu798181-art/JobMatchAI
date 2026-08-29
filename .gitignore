@@ -1,23 +1,29 @@
+# Environment files
+.env
+.env.*
+!.env.example
+
 # Python
 __pycache__/
 *.pyc
-venv/
-env/
+*.pyo
+*.pyd
 .venv/
+venv/
 
-# Environment variables (secrets)
-.env
+# Node
+node_modules/
+frontend/dist/
 
-# IDE
-.vscode/settings.json
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Database
+# Database/local files
 *.db
+*.sqlite
 *.sqlite3
 
-# Logs
-*.log
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

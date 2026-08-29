@@ -15,6 +15,7 @@ from profile.service import (
     add_student_skill,
     remove_student_skill,
     get_student_education,
+    create_student_education,
     update_student_education
 )
 
@@ -129,6 +130,52 @@ def get_profile(
         return get_student_profile(
             db,
             user
+        )
+
+    except ValueError as error:
+
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(error)
+        )
+# ==================================================
+# CREATE STUDENT EDUCATION
+# ==================================================
+
+@router.post(
+    "/education",
+    response_model=EducationResponse,
+    status_code=status.HTTP_201_CREATED
+)
+def create_my_education(
+    data: EducationUpdate,
+    session_token: str | None = Cookie(default=None),
+    db: Session = Depends(get_db)
+):
+
+    if not session_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated"
+        )
+
+    try:
+
+        user = get_user_from_session(
+            db,
+            session_token
+        )
+
+        if user.role != "student":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only students can create education"
+            )
+
+        return create_student_education(
+            db,
+            user,
+            data
         )
 
     except ValueError as error:

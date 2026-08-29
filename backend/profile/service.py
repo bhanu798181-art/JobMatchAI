@@ -321,6 +321,43 @@ def get_student_education(
     ).all()
 
     return list(education)
+
+# ==================================================
+# CREATE STUDENT EDUCATION
+# ==================================================
+
+def create_student_education(
+    db: DBSession,
+    user: User,
+    data: EducationUpdate
+) -> Education:
+
+    student = db.scalar(
+        select(StudentProfile).where(
+            StudentProfile.user_id == user.id
+        )
+    )
+
+    if not student:
+        raise ValueError(
+            "Student profile not found"
+        )
+
+    education_data = data.model_dump(
+        exclude_unset=True
+    )
+
+    education = Education(
+        student_id=student.id,
+        **education_data
+    )
+
+    db.add(education)
+
+    db.commit()
+    db.refresh(education)
+
+    return education
 # ==================================================
 # UPDATE STUDENT EDUCATION
 # ==================================================

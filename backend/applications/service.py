@@ -7,6 +7,7 @@ from applications.schemas import (
 )
 from models.job_application import JobApplication
 from models.user import User
+from models.job import Job
 
 
 def create_job_application(
@@ -151,3 +152,67 @@ def delete_job_application(
     db.delete(application)
 
     db.commit()
+def update_company_application_status(
+    db: DBSession,
+    company: User,
+    application_id: int,
+    status_value: str
+) -> JobApplication:
+
+    result = db.execute(
+        select(JobApplication, Job)
+        .join(
+            Job,
+            JobApplication.job_id == Job.id
+        )
+        .where(
+            JobApplication.id == application_id,
+            JobApplication.job_type == "internal"
+        )
+    ).first()
+
+    if not result:
+        raise ValueError(
+            "Application not found"
+        )
+
+    application, job = result
+
+    from models.company_profile import CompanyProfile
+
+    company_profile = db.scalar(
+        select(CompanyProfile).where(
+            CompanyProfile.user_id == company.id
+        )
+    )
+
+    if not company_profile:
+        raise ValueError(
+            "Company profile not found"
+        )
+
+    if job.company_id != company_profile.id:
+        raise ValueError(
+            "You can only manage applications for your own jobs"
+        )
+
+    allowed_statuses = {
+        "Applied",
+        "Reviewing",
+        "Shortlisted",
+        "Interview",
+        "Selected",
+        "Rejected"
+    }
+
+    if status_value not in allowed_statuses:
+        raise ValueError(
+            "Invalid application status"
+        )
+
+    application.application_status = status_value
+
+    db.commit()
+    db.refresh(application)
+
+    return application
