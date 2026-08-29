@@ -166,8 +166,6 @@ JobMatch AI follows a simple profile-to-job matching workflow:
 │   Apply & Track      │
 │    Applications      │
 └──────────────────────┘
-
-
 ## 📁 Project Structure
 
 ```text
@@ -202,6 +200,25 @@ JobMatchAI/
 ├── .gitignore
 └── README.md
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
 
 ## 🚀 Local Setup
 
@@ -284,7 +301,9 @@ The scheduler performs configured searches and stores new jobs in the PostgreSQL
 
 Duplicate jobs are detected using the external source and external job ID.
 
-## 📌 Project Status
+```
+
+## 📁 Project Structure
 
 ### Working Prototype
 
