@@ -616,9 +616,19 @@ async function handleUpdateProfile(event) {
       throw new Error(message);
     }
 
-    // ----------------------------------------------
+// ----------------------------------------------
 // CREATE / UPDATE EDUCATION
 // ----------------------------------------------
+
+if (!profileForm.qualification?.trim()) {
+  setEditingProfile(false);
+
+  await loadJobs();
+
+  alert("Profile updated successfully!");
+
+  return;
+}
 
 const educationPayload = {
   qualification:
