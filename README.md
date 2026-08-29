@@ -18,7 +18,7 @@ Instead of checking multiple job websites separately, users can discover relevan
 
 Secure login and registration interface for both students and companies.
 
-![Login Screen](screenshots/01-login.png)
+![Login Screen](screenshots/01-login-new.png)
 
 ---
 
