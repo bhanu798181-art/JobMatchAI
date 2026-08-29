@@ -2376,7 +2376,7 @@ return (
             </p>
 
             <h1>
-              Welcome back, Bhanu 👋
+              Welcome back, {studentProfile?.full_name || "Student"}👋
             </h1>
 
             <p>
