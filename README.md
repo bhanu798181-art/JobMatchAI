@@ -1,11 +1,54 @@
-# JobMatch AI
+# 🤖 JobMatch AI
 
-JobMatch AI is a full-stack web application that brings job opportunities from multiple sources into one place and helps students and freshers discover jobs that match their profile.
+### AI-Powered Job Matching Platform for Students & Freshers
 
-The application combines external job aggregation with profile-based job matching, allowing users to search for relevant opportunities without checking multiple job sources separately.
+![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python)
+![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?logo=fastapi)
+![React](https://img.shields.io/badge/React-Frontend-61DAFB?logo=react)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-336791?logo=postgresql)
+![Vite](https://img.shields.io/badge/Vite-Build%20Tool-646CFF?logo=vite)
+
+JobMatch AI is a full-stack web application that brings job opportunities from multiple sources into one place and helps students and freshers discover jobs that match their **education, skills, experience, location, and preferences**.
+
+Instead of checking multiple job websites separately, users can discover relevant opportunities through a unified platform with **profile-based job matching, match scores, match explanations, and application tracking**.
+
+---
+## 📸 Screenshots
+
+### 🔐 Login & Registration
+
+The authentication interface allows students and companies to securely create accounts and log in.
+
+### 🎯 Student Dashboard
+
+The dashboard displays profile information, matching job statistics, recommended jobs and profile completion.
+
+### 💼 Recommended Jobs
+
+Jobs are displayed with match percentages, job details, filters and explanations showing why each job matches the student's profile.
+
+### 📄 Application Tracking
+
+Students can view, edit and delete their job applications and track their application status.
+
+### 🏢 Company Dashboard
+
+Companies can view their posted jobs and manage applications received from students.
+
+
+
+## ✨ Project Highlights
+
+- 🎯 **Profile-based job matching** with percentage scores
+- 💼 **Multi-source job aggregation** from Jooble, Adzuna and JobDataLake
+- 🧠 **Match explanations** showing why a job matches the student's profile
+- 🔎 **Advanced job search and filtering**
+- 📄 **Application tracking** with status management
+- 👤 **Student profile, education and skills management**
+- 🔐 **Session-based authentication**
+- 📱 **Responsive React interface**
 
 ## Features
-
 - Student registration and login
 - Student profile management
 - Education details
@@ -48,104 +91,136 @@ It considers:
 
 The application also provides reasons explaining why a job matches or does not match the user's profile.
 
-## Technology Stack
+## 🛠️ Technology Stack
+
+| Layer | Technologies |
+|---|---|
+| **Frontend** | React, JavaScript, CSS, Vite |
+| **Backend** | Python, FastAPI, SQLAlchemy |
+| **Database** | PostgreSQL |
+| **External APIs** | Jooble, Adzuna, JobDataLake |
+| **Authentication** | Session-based authentication |
+| **API Communication** | REST APIs |
 
 ### Frontend
 
-- React
+- ⚛️ React
 - JavaScript
 - CSS
 - Vite
 
 ### Backend
 
-- Python
-- FastAPI
+- 🐍 Python
+- ⚡ FastAPI
 - SQLAlchemy
 
 ### Database
 
-- PostgreSQL
+- 🐘 PostgreSQL
 
-### External APIs
+### External Job Sources
 
 - Jooble
 - Adzuna
 - JobDataLake
 
-## How It Works
+## 🔄 How It Works
+
+JobMatch AI follows a simple profile-to-job matching workflow:
 
 ```text
-User
-  |
-  v
-Create Account / Login
-  |
-  v
-Complete Profile
-  |
-  v
-Add Education, Skills and Preferences
-  |
-  v
-Jobs collected from external sources
-  |
-  v
-Matching Engine
-  |
-  v
-Relevant Jobs
-  |
-  v
-View Job Details
-  |
-  v
-Apply
-  |
-  v
-Track Application
+┌──────────────────────┐
+│   Create Account     │
+│      / Login         │
+└──────────┬───────────┘
+           ↓
+┌──────────────────────┐
+│   Complete Profile   │
+│ Education • Skills   │
+│ Preferences • etc.   │
+└──────────┬───────────┘
+           ↓
+┌──────────────────────┐
+│   Collect Jobs       │
+│ Jooble • Adzuna      │
+│ • JobDataLake        │
+└──────────┬───────────┘
+           ↓
+┌──────────────────────┐
+│   Matching Engine    │
+│ Compare profile with │
+│ job requirements     │
+└──────────┬───────────┘
+           ↓
+┌──────────────────────┐
+│   Match Score +      │
+│   Match Reasons      │
+└──────────┬───────────┘
+           ↓
+┌──────────────────────┐
+│   View Job Details   │
+└──────────┬───────────┘
+           ↓
+┌──────────────────────┐
+│   Apply & Track      │
+│    Applications      │
+└──────────────────────┘
 
-Project Structure
 
+## 📁 Project Structure
+
+```text
 JobMatchAI/
-|
-|-- backend/
-|   |-- auth/
-|   |-- applications/
-|   |-- external_jobs/
-|   |   |-- adzuna.py
-|   |   |-- jooble.py
-|   |   |-- jobdatalake.py
-|   |   |-- models.py
-|   |   |-- routes.py
-|   |   `-- scheduler.py
-|   |-- jobs/
-|   |-- matching/
-|   |-- models/
-|   |-- preferences/
-|   |-- profile/
-|   |-- resume/
-|   |-- database.py
-|   |-- main.py
-|   |-- requirements.txt
-|   `-- .env.example
-|
-|-- frontend/
-|   |-- src/
-|   |   |-- App.jsx
-|   |   |-- App.css
-|   |   `-- main.jsx
-|   |-- package.json
-|   `-- vite.config.js
-|
-|-- .gitignore
-`-- README.md
+│
+├── backend/
+│   ├── auth/              # Authentication and sessions
+│   ├── applications/      # Job application management
+│   ├── external_jobs/     # External job source integrations
+│   ├── jobs/              # Job management
+│   ├── matching/          # Profile-based job matching
+│   ├── models/            # SQLAlchemy database models
+│   ├── preferences/       # Student job preferences
+│   ├── profile/           # Student/company profiles
+│   ├── resume/            # Resume management
+│   ├── database.py        # Database connection
+│   ├── main.py            # FastAPI application
+│   ├── requirements.txt   # Backend dependencies
+│   └── .env.example       # Environment variable template
+│
+├── frontend/
+│   ├── src/
+│   │   ├── App.jsx        # Main React application
+│   │   ├── App.css        # Application styling
+│   │   └── main.jsx       # React entry point
+│   ├── package.json
+│   └── vite.config.js
+│
+├── database/              # Database-related resources
+├── jobs/                  # Project job resources
+├── tests/                 # Test resources
+├── .gitignore
+└── README.md
 
 
-Local Setup
-Backend
+## 🚀 Local Setup
 
-Open a terminal in the project folder and run:
+Follow these steps to run JobMatch AI locally.
+
+### Prerequisites
+
+Make sure you have installed:
+
+- Python 3.x
+- Node.js and npm
+- PostgreSQL
+- Git
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/bhanu798181-art/JobMatchAI.git
+cd JobMatchAI
 
 cd backend
 python -m venv venv
@@ -209,50 +284,74 @@ The scheduler performs configured searches and stores new jobs in the PostgreSQL
 
 Duplicate jobs are detected using the external source and external job ID.
 
-Project Status
-Working Prototype
+## 📌 Project Status
 
-The main application features are currently working locally, including:
+### Working Prototype
 
-Authentication
-Student profiles
-Education
-Skills
-Preferences
-External job collection
-Job matching
-Job search
-Job filtering
-Job details
-Applications
-Resume management
+JobMatch AI is currently a working full-stack prototype developed and tested locally.
 
-The application has been tested locally with all three configured external job sources.
+The main implemented features include:
 
-Future Improvements
-Add more job sources
-Improve matching algorithms
-Improve duplicate-job detection
-Add advanced search
-Add notifications
-Improve analytics
-Further UI/UX improvements
-Add more job collection locations
-Improve job description processing
-About
+- ✅ User authentication
+- ✅ Student profile management
+- ✅ Education and skills management
+- ✅ Job preferences
+- ✅ External job aggregation
+- ✅ Profile-based job matching
+- ✅ Job match percentage
+- ✅ Match explanations
+- ✅ Job search and filtering
+- ✅ Job details
+- ✅ Job applications
+- ✅ Application tracking
+- ✅ Company job management
+- ✅ Application status management
 
-JobMatch AI is an independently developed personal project created to explore practical full-stack development.
+The application has been tested locally with the configured job-source integrations.
 
-The project demonstrates experience with:
+---
 
-React
-FastAPI
-Python
-PostgreSQL
-SQLAlchemy
-REST APIs
-External API integration
-Authentication
-Job aggregation
-Profile-based matching
-Database design
+## 🔮 Future Improvements
+
+Planned improvements include:
+
+- 🌐 Add more job sources
+- 🧠 Improve matching algorithms
+- 🔎 Add advanced search capabilities
+- 🔔 Add application and job notifications
+- 📊 Add analytics and dashboards
+- 🎨 Further improve UI/UX
+- 📍 Expand job collection locations
+- 📝 Improve job-description processing
+- ⚡ Improve matching and job-collection performance
+- ☁️ Deploy the application to a production environment
+
+## 👨‍💻 About the Project
+
+JobMatch AI is an independently developed project created to explore practical **full-stack web development, API integration, database design, authentication, and profile-based job matching**.
+
+The project brings together multiple technologies into a single career-focused application designed for students and freshers.
+
+### What This Project Demonstrates
+
+- ⚛️ React frontend development
+- 🐍 Python and FastAPI backend development
+- 🐘 PostgreSQL database design
+- 🔗 REST API development and integration
+- 🔐 Authentication and session management
+- 💼 External job API integration
+- 🎯 Profile-based job matching
+- 📊 Application and data management
+- 🧩 Full-stack application architecture
+
+### 👤 Developer
+
+**Bhanu Prakash**
+
+Built as a practical full-stack project to learn, experiment, and develop real-world software engineering skills.
+
+---
+
+## ⭐ Support
+
+If you find this project useful or interesting, consider giving the repository a ⭐ on GitHub.
