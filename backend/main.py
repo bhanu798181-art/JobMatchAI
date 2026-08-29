@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from database import Base, engine
+
+
 # --------------------------------------------------
 # Authentication
 # --------------------------------------------------
@@ -35,6 +38,13 @@ from external_jobs.routes import router as external_jobs_router
 
 
 # --------------------------------------------------
+# Create database tables
+# --------------------------------------------------
+
+Base.metadata.create_all(bind=engine)
+
+
+# --------------------------------------------------
 # FastAPI application
 # --------------------------------------------------
 
@@ -49,12 +59,12 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-allow_origins=[
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "https://job-match-ai-two.vercel.app",
-    "https://job-match-kqatvh5n2-bhanu-cf75.vercel.app",
-],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://job-match-ai-two.vercel.app",
+        "https://job-match-kqatvh5n2-bhanu-cf75.vercel.app",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
