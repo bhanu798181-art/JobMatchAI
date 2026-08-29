@@ -7157,3 +7157,608 @@ button:active {
     min-height: 44px;
   }
 }
+/* =========================================================
+   MOBILE REDESIGN
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  /* ---------- GLOBAL ---------- */
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  #root {
+    width: 100%;
+    max-width: 100%;
+    border: 0;
+    margin: 0;
+  }
+
+  .app {
+    width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  /* ---------- HEADER ---------- */
+
+  .header {
+    height: auto;
+    min-height: 64px;
+    padding: 10px 14px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .logo {
+    font-size: 19px;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .logo-icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    font-size: 21px;
+  }
+
+  .header nav {
+    order: 3;
+    width: 100%;
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 2px 0 4px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .header nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .header nav a {
+    flex: 0 0 auto;
+    padding: 8px 12px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .user {
+    margin-left: auto;
+    gap: 7px;
+    min-width: 0;
+  }
+
+  .user > div:not(.avatar) {
+    display: none;
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+  }
+
+  .logout-button {
+    padding: 8px 11px;
+    font-size: 12px;
+  }
+
+  /* ---------- MAIN CONTAINER ---------- */
+
+  .container {
+    width: 100%;
+    max-width: 100%;
+    padding: 20px 14px 50px;
+    box-sizing: border-box;
+  }
+
+  /* ---------- WELCOME ---------- */
+
+  .welcome {
+    display: block;
+    padding: 8px 2px 18px;
+  }
+
+  .welcome-label {
+    font-size: 11px;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+  }
+
+  .welcome h1 {
+    font-size: 30px;
+    line-height: 1.12;
+    letter-spacing: -0.8px;
+    margin: 0 0 10px;
+  }
+
+  .welcome > div:first-child > p:last-child {
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  .profile-card {
+    margin-top: 18px;
+    padding: 14px;
+    gap: 12px;
+    border-radius: 18px;
+  }
+
+  .profile-avatar {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    font-size: 19px;
+  }
+
+  .profile-card strong {
+    font-size: 16px;
+  }
+
+  .profile-card span {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  /* ---------- STUDENT STATS ---------- */
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 8px 0 18px;
+  }
+
+  .stat-card {
+    min-width: 0;
+    padding: 14px;
+    gap: 10px;
+    border-radius: 18px;
+  }
+
+  .stat-icon {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    font-size: 19px;
+  }
+
+  .stat-card span {
+    font-size: 11px;
+    line-height: 1.2;
+  }
+
+  .stat-card strong {
+    display: block;
+    font-size: 24px;
+    line-height: 1.1;
+    margin-top: 3px;
+  }
+
+  /* ---------- PROFILE + QUICK ACTIONS ---------- */
+
+  .dashboard-tools {
+    display: block;
+    margin: 18px 0;
+  }
+
+  .completion-card,
+  .quick-actions-card {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .quick-actions-card {
+    margin-top: 12px;
+  }
+
+  .completion-header {
+    gap: 12px;
+  }
+
+  .completion-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+  }
+
+  .completion-header h3,
+  .quick-actions-heading h3 {
+    font-size: 20px;
+    line-height: 1.2;
+    margin: 5px 0;
+  }
+
+  .completion-header p {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .completion-percent {
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+    font-size: 15px;
+  }
+
+  .completion-progress {
+    height: 8px;
+    margin: 14px 0;
+  }
+
+  .completion-footer {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+    font-size: 12px;
+  }
+
+  .quick-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .quick-action {
+    min-height: 58px;
+    padding: 10px 12px;
+    border-radius: 14px;
+  }
+
+  .quick-action-icon {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    font-size: 17px;
+  }
+
+  .quick-action strong {
+    font-size: 14px;
+  }
+
+  .quick-action small {
+    font-size: 11px;
+  }
+
+  /* ---------- SECTION HEADINGS ---------- */
+
+  .jobs-section,
+  .applications-section {
+    margin-top: 28px;
+  }
+
+  .section-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .section-heading h2 {
+    font-size: 23px;
+    line-height: 1.15;
+    margin-bottom: 4px;
+  }
+
+  .section-heading p {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .refresh-button {
+    flex-shrink: 0;
+    padding: 9px 11px;
+    font-size: 12px;
+  }
+
+  /* ---------- FILTERS ---------- */
+
+  .job-filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 18px;
+    margin-bottom: 14px;
+  }
+
+  .job-filters input,
+  .job-filters select,
+  .job-filters button {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    box-sizing: border-box;
+    font-size: 13px;
+  }
+
+  .job-filters input:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .job-filters button {
+    grid-column: 1 / -1;
+  }
+
+  /* ---------- JOB LIST ---------- */
+
+  .jobs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .job-card {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 15px;
+    border-radius: 20px;
+  }
+
+  /* ---------- JOB HEADER ---------- */
+
+  .job-top {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 11px;
+    align-items: start;
+  }
+
+  .company-logo {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    font-size: 18px;
+  }
+
+  .job-title-area {
+    min-width: 0;
+    padding-right: 0;
+  }
+
+  .job-title-area h3 {
+    font-size: 17px;
+    line-height: 1.2;
+    margin: 0 0 4px;
+    overflow-wrap: anywhere;
+  }
+
+  .job-title-area p {
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  .match-badge {
+    grid-column: 1 / -1;
+    justify-self: start;
+    margin-top: 2px;
+    padding: 7px 12px;
+    font-size: 12px;
+    border-radius: 999px;
+  }
+
+  /* ---------- JOB DETAILS ---------- */
+
+  .job-details {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 7px;
+    margin-top: 13px;
+  }
+
+  .job-details span {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 11px;
+    border-radius: 11px;
+    font-size: 12px;
+    line-height: 1.25;
+  }
+
+  /* ---------- MATCH REASONS ---------- */
+
+  .reasons {
+    margin-top: 14px;
+    padding-top: 13px;
+  }
+
+  .reasons h4 {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .reason-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .reason {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 7px 9px;
+    font-size: 11px;
+    line-height: 1.35;
+    border-radius: 9px;
+  }
+
+  /* ---------- JOB FOOTER ---------- */
+
+  .job-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 9px;
+    margin-top: 14px;
+    padding-top: 12px;
+  }
+
+  .job-id {
+    font-size: 11px;
+    text-align: center;
+  }
+
+  .apply-button {
+    width: 100%;
+    min-height: 46px;
+    font-size: 13px;
+    border-radius: 12px;
+  }
+
+  /* ---------- APPLICATION SUMMARY ---------- */
+
+  .application-summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .application-count {
+    padding: 13px;
+    border-radius: 14px;
+  }
+
+  .application-count span {
+    font-size: 11px;
+  }
+
+  .application-count strong {
+    font-size: 22px;
+  }
+
+  /* ---------- APPLICATION CARDS ---------- */
+
+  .application-card {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  /* ---------- MESSAGES ---------- */
+
+  .message {
+    padding: 22px 16px;
+    border-radius: 18px;
+  }
+
+  .message h3 {
+    font-size: 18px;
+  }
+
+  .message p {
+    font-size: 13px;
+  }
+
+  /* ---------- COMPANY DASHBOARD ---------- */
+
+  .company-job-item,
+  .company-application-card {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  /* ---------- TOUCH ---------- */
+
+  button,
+  a,
+  select,
+  input {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button,
+  .quick-action,
+  .apply-button,
+  .refresh-button {
+    min-height: 44px;
+  }
+}
+
+
+/* =========================================================
+   SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 420px) {
+
+  .container {
+    padding-left: 11px;
+    padding-right: 11px;
+  }
+
+  .header {
+    padding-left: 11px;
+    padding-right: 11px;
+  }
+
+  .logo {
+    font-size: 17px;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+  }
+
+  .logout-button {
+    padding: 7px 9px;
+  }
+
+  .welcome h1 {
+    font-size: 27px;
+  }
+
+  .stat-card {
+    padding: 12px;
+  }
+
+  .stat-icon {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+  }
+
+  .stat-card strong {
+    font-size: 22px;
+  }
+
+  .completion-card,
+  .quick-actions-card {
+    padding: 15px;
+  }
+
+  .section-heading h2 {
+    font-size: 21px;
+  }
+
+  .job-card {
+    padding: 13px;
+  }
+
+  .job-title-area h3 {
+    font-size: 16px;
+  }
+
+  .job-details span {
+    font-size: 11px;
+  }
+
+  .job-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .job-filters input:first-child,
+  .job-filters button {
+    grid-column: auto;
+  }
+}
